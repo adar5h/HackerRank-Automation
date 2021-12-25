@@ -1,0 +1,7 @@
+{
+    "userId":"youremail@mail.com",
+    "password":"password",
+    "moderators": [
+        "JohnDoe"
+    ] 
+}
