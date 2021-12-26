@@ -1,4 +1,4 @@
-// node HackerRankAutomation.js --url=https://www.hackerrank.com/ --config=config.json
+// node HackerRankAutomation.js --url=https://www.hackerrank.com --config=config.json
 
 // npm init -y
 // npm install minimist
@@ -87,26 +87,82 @@ async function init() {
     await page.waitForSelector('a[href="/administration/contests/"]');
     await page.click('a[href="/administration/contests/"]');
 
-    // Wait & Click on the first contest
-    await page.waitForSelector('p.mmT');
-    await page.click('p.mmT');
-
-    await page.waitForTimeout(3000); // To skip the pop-up
+    /* For adding the first moderator on first contest
+     <----------------------------------------------->
+     // // Wait & Click on the first contest
+     // await page.waitForSelector('p.mmT');
+     // await page.click('p.mmT');
+     
+     // await page.waitForTimeout(3000); // To skip the pop-up
+     
+     // // Wait & Click on the nav's "Moderators"
+     // await page.waitForSelector('li[data-tab="moderators"]');
+     // await page.click('li[data-tab="moderators"]');
+     
+     // // To click on the input textbox
+     // await page.waitForSelector('input#moderator');
+     // await page.click('input#moderator');
+     
+        // // To type the moderator username
+        // await page.waitForSelector('input#moderator', configJSO.moderators);
+        // await page.type('input#moderator', configJSO.moderators , {delay: 100});
     
-    // Wait & Click on the nav's "Moderators"
-    await page.waitForSelector('li[data-tab="moderators"]');
-    await page.click('li[data-tab="moderators"]');
+        // // To press Enter
+        // await page.keyboard.press('Enter');
+     <----------------------------------------------->
+    */
 
-    // To click on the input textbox
-    await page.waitForSelector('input#moderator');
-    await page.click('input#moderator');
+     // Add Moderator in a seperate Tab
 
-    // To type the moderator username
-    await page.waitForSelector('input#moderator', configJSO.moderators);
-    await page.type('input#moderator', configJSO.moderators , {delay: 100});
+     // Find all urls of same page
+     await page.waitForSelector("a.backbone.block-center");
+     let curls = await page.$$eval("a.backbone.block-center", function(atags){ // $$eval is used as querySelectorAll for the given selector and would return the resulting array in the function's argument.
+        let urls = [];
 
-    // To press Enter
-    await page.keyboard.press('Enter');
+        for(let i = 0; i < atags.length; i++){
+            let url = atags[i].getAttribute('href');
+            urls.push(url);
+        }
+        return urls;
+     });
+
+     for(let i = 0; i < curls.length; i++){
+         let ctab = await browser.newPage();
+         await ctab.goto(args.url + curls[i]);
+
+         await ctab.waitForTimeout(3000);
+         
+         await ctab.waitForSelector('li[data-tab="moderators"]');
+         await ctab.click('li[data-tab="moderators"]');
+         
+         await ctab.waitForTimeout(3000);
+
+         // <----------To ADD Moderators----------->
+         await ctab.waitForSelector('input#moderator');
+         await ctab.click('input#moderator');
+
+         await ctab.waitForSelector('input#moderator', configJSO.moderators);
+         await ctab.type('input#moderator', configJSO.moderators , {delay:500});
+
+         // <----------To ADD Moderators----------->
+
+        // <----------To REMOVE Moderators----------->
+
+        // await ctab.waitForSelector("a[data-username='xotwod']");
+        // await ctab.click("a[data-username='xotwod']");
+
+        // <----------To REMOVE Moderators----------->
+         await ctab.waitForTimeout(2000);
+         
+         await ctab.keyboard.press('Enter', {delay: 100});
+         
+         await ctab.close();
+         await ctab.waitForTimeout(2000);
+     }
+     
+    
+
+
 
 
 
